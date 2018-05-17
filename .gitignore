@@ -1,0 +1,8 @@
+.idea
+/node_modules
+/public/components
+/public/data
+package-lock.json
+/logs/app.log
+.vagrant
+ubuntu-xenial-16.04-cloudimg-console.log
