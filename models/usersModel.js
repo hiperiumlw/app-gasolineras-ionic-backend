@@ -26,8 +26,20 @@ const User = sequelize.define('usuarios',{
 })
 
 class UsersModel{
-    login(){
+    login(usuario,cb){
+        User.findOne({where:{email:usuario.email}}).then((user)=>{
+            return cb(null,user);
+        }).error((error)=>{
+            return cb(error);
+        })
+    }
 
+    getUserById(id,cb){
+        User.findOne({where:{id:id}}).then((resultado)=>{
+            return cb(null,resultado);
+        }).error((error)=>{
+            return cb(error);
+        })
     }
 
     register(usuario,cb){

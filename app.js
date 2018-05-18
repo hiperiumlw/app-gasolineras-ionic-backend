@@ -5,6 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 let cors = require('cors');
 var api = require('./routes/api');
+let passport = require('passport');
+let session = require('express-session');
 let users = require('./routes/users');
 
 var app = express();
@@ -19,8 +21,24 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(session({
+  secret: 'clavesecreta',
+  name:'coockiedemiapp',
+  resave:true,
+  saveUninitialized: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use((req,res,next)=>{
+  res.locals.user= req.user;
+  next();
+})
+
 app.use('/api', api);
 app.use('/users',users);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
