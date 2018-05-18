@@ -19,7 +19,6 @@ class UsersController{
             //this.res.status(200).json({success:true,message:'Ha iniciado sesión correctamente!'})
             req.logIn(user, function(err) {
               if (err) { res.status(400).json({success:false,message:err}) }
-              console.log(req.user);
               res.status(200).json({success:true,message:'Ha iniciado sesión correctamente',user:user});
             });
           })(req, res, next);
