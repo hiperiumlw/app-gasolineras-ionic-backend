@@ -19,7 +19,7 @@ class ApiController {
                     else {
                         this.res.statusCode = 200;
                         this.res.send("OK");
-                    };
+                    }
                 })
             })
     }
