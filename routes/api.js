@@ -12,5 +12,15 @@ router.get('/', function(req, res, next) {
 router.get('/fuelstation/:tipo',(req,res,next)=>{
     let apiController = new ApiController(req,res,next);
     apiController.getFuelStation();
+});
+
+router.post('/reviews/add',(req,res,next)=>{
+    let apiController = new ApiController(req,res,next);
+    apiController.saveReview();
+});
+
+router.get('/reviews/:direccion',(req,res,next)=>{
+    let apiController = new ApiController(req,res,next);
+    apiController.getReviews();
 })
 module.exports = router;

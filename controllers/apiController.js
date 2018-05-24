@@ -37,13 +37,37 @@ class ApiController {
                         },
                         name: data['Rótulo'],
                         schedule: data['Horario'],
-                        price:parseFloat((data[tipo]).replace(',', '.'))
+                        price:parseFloat((data[tipo]).replace(',', '.')),
+                        address:data['Dirección']
                     })
                 });
                 this.res.send(markers);
             }
         })
     }
+
+    saveReview(){
+        let review = {
+            Comentario:this.req.body.Comentario,
+            Puntuacion:this.req.body.Puntuacion,
+            DireccionGasolinera:this.req.body.DireccionGasolinera
+        }
+        this.apiModel.saveReview(review,(err,result)=>{
+            if (err) this.res.statusCode(500).send(err);
+            else this.res.status(200).json({success:true,message:'Ha creado una review que será revisada por un administrador...'});
+        })
+    }
+
+    getReviews(){
+        let direccion = decodeURIComponent(this.req.params.direccion);
+        this.apiModel.getReviews(direccion,(err,result)=>{
+            if (err) this.res.statusCode(500).send(err);
+            else {
+                this.res.send(result);
+            }
+        })
+    }
+
 }
 
 
