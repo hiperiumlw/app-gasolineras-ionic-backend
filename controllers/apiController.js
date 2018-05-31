@@ -68,6 +68,23 @@ class ApiController {
         })
     }
 
+    getPendingReviews(){
+        this.apiModel.getPendingReviews((err,result)=>{
+            if (err) this.res.statusCode(500).send(err);
+            else {
+                this.res.send(result);
+            }
+        })
+    }
+
+    validateAll(){
+        this.apiModel.validateAll(this.req.body,(err,result)=>{
+            if (err) this.res.status(500).json({success:false,message:err});
+            else {
+                this.res.status(200).json({success:true,message:'Se han validado todas las reviews pendientes...'});
+            }
+        })
+    }
 }
 
 

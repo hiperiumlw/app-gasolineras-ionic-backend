@@ -63,7 +63,7 @@ const Review = sequelize.define('reviews', {
     'Activa': {
         type: SEQUELIZE.BOOLEAN
     },
-    
+
 })
 
 Gasolinera.hasMany(Review, { foreignKey: 'DireccionGasolinera', sourceKey: 'Dirección' });
@@ -106,12 +106,38 @@ class GasolineraModelo {
     }
 
     getReviews(direccion, cb) {
-        Review.findAll({ where: { DireccionGasolinera: direccion,Activa:true } }).then((result) => {
+        Review.findAll({ where: { DireccionGasolinera: direccion, Activa: true } }).then((result) => {
             return cb(null, result);
         })
-        .error((error)=>{
-            return cb(error);
+            .error((error) => {
+                return cb(error);
+            })
+    }
+
+    getPendingReviews(cb) {
+        Review.findAll({ where: { Activa: false } }).then((result) => {
+            return cb(null, result);
         })
+            .error((error) => {
+                return cb(error);
+            })
+    }
+
+    validateAll(reviews, cb) {
+        let contador=0;
+        reviews.forEach((review)=>{
+            review.Activa = true;
+            Review.update(review,{where:{id:review.id}}).then((result) => {
+                contador++;
+                if (contador == reviews.length){
+                    return cb(null,"Todo OK");
+                }
+            })
+            .error ((error)=>{
+                return cb(error);
+            })
+        })
+        
     }
 }
 
