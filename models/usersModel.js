@@ -51,6 +51,10 @@ class UsersModel {
             return cb(err);
         })
     }
+
+    getUserModelSequelize(){
+        return User;
+    }
 }
 
 module.exports = UsersModel;

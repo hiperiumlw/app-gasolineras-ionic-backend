@@ -2,6 +2,10 @@ let sequelize = require('../connection/sequelizeconnection');
 const SEQUELIZE = require('sequelize');
 const Op = SEQUELIZE.Op;
 
+const UsersModel = require('./usersModel');
+let usersModel = new UsersModel();
+const User = usersModel.getUserModelSequelize();
+
 const Gasolinera = sequelize.define('gasolineras', {
     'Rótulo': {
         type: SEQUELIZE.STRING
@@ -60,15 +64,47 @@ const Review = sequelize.define('reviews', {
     'DireccionGasolinera': {
         type: SEQUELIZE.STRING
     },
+    'EmailUsuario': {
+        type: SEQUELIZE.STRING
+    },
     'Activa': {
         type: SEQUELIZE.BOOLEAN
     },
 
+});
+
+const Favoritos = sequelize.define('favoritos', {
+    'Latitud': {
+        type: SEQUELIZE.FLOAT
+    },
+    'Longitud (WGS84)': {
+        type: SEQUELIZE.FLOAT
+    },
+    'Rótulo': {
+        type: SEQUELIZE.STRING
+    },
+    'Horario': {
+        type: SEQUELIZE.STRING
+    },
+    'Tipo': {
+        type: SEQUELIZE.STRING
+    },
+    'Precio': {
+        type: SEQUELIZE.FLOAT
+    },
+    'Dirección': {
+        type: SEQUELIZE.STRING
+    },
+    'EmailUsuario': {
+        type: SEQUELIZE.STRING
+    }
 })
 
 Gasolinera.hasMany(Review, { foreignKey: 'DireccionGasolinera', sourceKey: 'Dirección' });
 Review.belongsTo(Gasolinera, { foreignKey: 'DireccionGasolinera', targetKey: 'Dirección' });
 
+User.hasMany(Review, { foreignKey: 'EmailUsuario', sourceKey: 'email' });
+Review.belongsTo(User, { foreignKey: 'EmailUsuario', targetKey: 'email' });
 class GasolineraModelo {
     dailyUpdate(ListaEESSPrecio, cb) {
         Gasolinera.destroy({ where: {} })
@@ -105,7 +141,7 @@ class GasolineraModelo {
         })
     }
 
-    getReviews(direccion, cb) {
+    getReviewsByFuelStation(direccion, cb) {
         Review.findAll({ where: { DireccionGasolinera: direccion, Activa: true } }).then((result) => {
             return cb(null, result);
         })
@@ -113,6 +149,16 @@ class GasolineraModelo {
                 return cb(error);
             })
     }
+
+    getReviewsByUser(email, cb) {
+        Review.findAll({ where: { EmailUsuario: email } }).then((result) => {
+            return cb(null, result);
+        })
+            .error((error) => {
+                return cb(error);
+            })
+    }
+
 
     getPendingReviews(cb) {
         Review.findAll({ where: { Activa: false } }).then((result) => {
@@ -124,20 +170,43 @@ class GasolineraModelo {
     }
 
     validateAll(reviews, cb) {
-        let contador=0;
-        reviews.forEach((review)=>{
+        let contador = 0;
+        reviews.forEach((review) => {
             review.Activa = true;
-            Review.update(review,{where:{id:review.id}}).then((result) => {
+            Review.update(review, { where: { id: review.id } }).then((result) => {
                 contador++;
-                if (contador == reviews.length){
-                    return cb(null,"Todo OK");
+                if (contador == reviews.length) {
+                    return cb(null, "Todo OK");
                 }
             })
-            .error ((error)=>{
-                return cb(error);
-            })
+                .error((error) => {
+                    return cb(error);
+                })
         })
-        
+
+    };
+
+    saveFavourites(favourites, cb) {
+        let promises = favourites.map((fuelstation) => {
+            return Favoritos.findOrCreate({
+                where: {
+                    'Tipo':fuelstation['Tipo'],
+                    'Dirección':fuelstation['Dirección'],
+                    'EmailUsuario':fuelstation['EmailUsuario']
+                },
+                defaults:{
+                    'Latitud':fuelstation['Latitud'],
+                    'Longitud (WGS84)':fuelstation['Longitud (WGS84)'],
+                    'Rótulo':fuelstation['Rótulo'],
+                    'Horario':fuelstation['Horario'],
+                    'Precio':fuelstation['Precio'],
+                }
+            })
+        });
+
+        Promise.all(promises).then((favouritesAux)=>{
+            return cb(null,favouritesAux);
+        })
     }
 }
 

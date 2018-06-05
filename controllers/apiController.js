@@ -37,8 +37,8 @@ class ApiController {
                         },
                         name: data['Rótulo'],
                         schedule: data['Horario'],
-                        price:parseFloat((data[tipo]).replace(',', '.')),
-                        address:data['Dirección']
+                        price: parseFloat((data[tipo]).replace(',', '.')),
+                        address: data['Dirección']
                     })
                 });
                 this.res.send(markers);
@@ -46,21 +46,22 @@ class ApiController {
         })
     }
 
-    saveReview(){
+    saveReview() {
         let review = {
-            Comentario:this.req.body.Comentario,
-            Puntuacion:this.req.body.Puntuacion,
-            DireccionGasolinera:this.req.body.DireccionGasolinera
+            Comentario: this.req.body.Comentario,
+            Puntuacion: this.req.body.Puntuacion,
+            DireccionGasolinera: this.req.body.DireccionGasolinera,
+            EmailUsuario: this.req.body.EmailUsuario
         }
-        this.apiModel.saveReview(review,(err,result)=>{
+        this.apiModel.saveReview(review, (err, result) => {
             if (err) this.res.statusCode(500).send(err);
-            else this.res.status(200).json({success:true,message:'Ha creado una review que será revisada por un administrador...'});
+            else this.res.status(200).json({ success: true, message: 'Ha creado una review que será revisada por un administrador...' });
         })
     }
 
-    getReviews(){
+    getReviewsByFuelStation() {
         let direccion = decodeURIComponent(this.req.params.direccion);
-        this.apiModel.getReviews(direccion,(err,result)=>{
+        this.apiModel.getReviewsByFuelStation(direccion, (err, result) => {
             if (err) this.res.statusCode(500).send(err);
             else {
                 this.res.send(result);
@@ -68,8 +69,9 @@ class ApiController {
         })
     }
 
-    getPendingReviews(){
-        this.apiModel.getPendingReviews((err,result)=>{
+    getReviewsByUser() {
+        let email = decodeURIComponent(this.req.params.email);
+        this.apiModel.getReviewsByUser(email, (err, result) => {
             if (err) this.res.statusCode(500).send(err);
             else {
                 this.res.send(result);
@@ -77,11 +79,43 @@ class ApiController {
         })
     }
 
-    validateAll(){
-        this.apiModel.validateAll(this.req.body,(err,result)=>{
-            if (err) this.res.status(500).json({success:false,message:err});
+    getPendingReviews() {
+        this.apiModel.getPendingReviews((err, result) => {
+            if (err) this.res.statusCode(500).send(err);
             else {
-                this.res.status(200).json({success:true,message:'Se han validado todas las reviews pendientes...'});
+                this.res.send(result);
+            }
+        })
+    };
+
+    validateAll() {
+        this.apiModel.validateAll(this.req.body, (err, result) => {
+            if (err) this.res.status(500).json({ success: false, message: err });
+            else {
+                this.res.status(200).json({ success: true, message: 'Se han validado todas las reviews pendientes...' });
+            }
+        })
+    };
+
+    saveFavourites(){
+        let favourites = [];
+        this.req.body.forEach((fuelstation)=>{
+            let fuelstationAux = {
+                'Latitud':fuelstation.position.lat,
+                'Longitud (WGS84)':fuelstation.position.lng,
+                'Rótulo':fuelstation.name,
+                'Horario':fuelstation.schedule,
+                'Tipo':fuelstation.type,
+                'Precio':fuelstation.price,
+                'Dirección':fuelstation.address,
+                'EmailUsuario':fuelstation.userEmail
+            }
+            favourites.push(fuelstationAux);
+        })
+        this.apiModel.saveFavourites(favourites,(err,result)=>{
+            if (err) this.res.status(500).json({ success: false, message: err });
+            else {
+                this.res.status(200).json({success:true,message: 'Se han sincronizado los favoritos con su cuenta de usuario!'});
             }
         })
     }

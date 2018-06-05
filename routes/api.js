@@ -26,10 +26,19 @@ router.post('/reviews/validate', (req, res, next) => {
     let apiController = new ApiController(req, res, next);
     apiController.validateAll();
 })
-router.get('/reviews/:direccion', (req, res, next) => {
+router.get('/reviews/fuelstation/:direccion', (req, res, next) => {
     let apiController = new ApiController(req, res, next);
-    apiController.getReviews();
+    apiController.getReviewsByFuelStation();
 });
 
+router.get('/reviews/user/:email',(req,res,next)=>{
+    let apiController = new ApiController(req, res, next);
+    apiController.getReviewsByUser();
+});
+
+router.post('/favourites/save',(req,res,next)=>{
+    let apiController = new ApiController(req, res, next);
+    apiController.saveFavourites();
+})
 
 module.exports = router;
